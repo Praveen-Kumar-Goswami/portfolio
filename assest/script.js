@@ -1,106 +1,103 @@
-        const canvas = document.getElementById("starfield");
-        const ctx = canvas.getContext("2d");
+const canvas = document.getElementById("starfield");
+const ctx = canvas.getContext("2d");
 
-        let stars = [];
-        let mouse = { x: 0, y: 0 };
-        let scrollDelta = 0;
-        let touchStartY = 0;
-        let isScrolling = false;
+let stars = [];
+let mouse = { x: 0, y: 0 };
+let scrollDelta = 0;
+let touchStartY = 0;
 
-        function resizeCanvas() {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-            stars = [];
-            for (let i = 0; i < 800; i++) {
-                stars.push({
-                    x: Math.random() * canvas.width,
-                    y: Math.random() * canvas.height,
-                    radius: Math.random() * 2,
-                    speed: Math.random() * 1 + 1
-                });
-            }
-        }
-
-        function drawStars() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.fillStyle = "white";
-            stars.forEach(star => {
-                ctx.beginPath();
-                ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
-                ctx.fill();
-            });
-        }
-
-        function updateStars() {
-            stars.forEach(star => {
-                // Mouse motion effect
-                star.x += (mouse.x - canvas.width / 2) * 0.001 * star.speed;
-                star.y += (mouse.y - canvas.height / 2) * 0.001 * star.speed;
-
-                // Scroll inverted movement
-                star.y -= scrollDelta * 1 * star.speed;
-
-                // Wrap around
-                if (star.x < 0) star.x = canvas.width;
-                if (star.x > canvas.width) star.x = 0;
-                if (star.y < 0) star.y = canvas.height;
-                if (star.y > canvas.height) star.y = 0;
-            });
-            scrollDelta = 0;
-        }
-
-        function animate() {
-            drawStars();
-            updateStars();
-            requestAnimationFrame(animate);
-        }
-
-        // Handle mouse movement
-        window.addEventListener("mousemove", e => {
-            mouse.x = e.clientX;
-            mouse.y = e.clientY;
+function resizeCanvas() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    stars = [];
+    for (let i = 0; i < 800; i++) {
+        stars.push({
+            x: Math.random() * canvas.width,
+            y: Math.random() * canvas.height,
+            radius: Math.random() * 2,
+            speed: Math.random() * 1 + 1
         });
+    }
+}
 
-        // Handle mouse wheel
-        window.addEventListener("wheel", e => {
-            scrollDelta = e.deltaY > 0 ? 1 : -1;
-        });
+function drawStars() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = "white";
+    ctx.beginPath();
+    stars.forEach(star => {
+        ctx.moveTo(star.x, star.y);
+        ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
+    });
+    ctx.fill();
+}
 
-        // Touch events for mobile devices
-        window.addEventListener("touchstart", e => {
-            touchStartY = e.touches[0].clientY;
-            isScrolling = true;
-            
-            // Also update mouse position for star movement
-            mouse.x = e.touches[0].clientX;
-            mouse.y = e.touches[0].clientY;
-        });
+function updateStars() {
+    const centerX = canvas.width / 2;
+    const centerY = canvas.height / 2;
+    const dx = (mouse.x - centerX) * 0.001;
+    const dy = (mouse.y - centerY) * 0.001;
+    const ds = -scrollDelta; // Inverted scroll
 
-        window.addEventListener("touchmove", e => {
-            if (!isScrolling) return;
-            
-            const touchY = e.touches[0].clientY;
-            const deltaY = touchY - touchStartY;
-            
-            // Set scroll delta based on touch movement
-            scrollDelta = deltaY > 0 ? -1 : 1;
-            touchStartY = touchY;
-            
-            // Update mouse position for star movement
-            mouse.x = e.touches[0].clientX;
-            mouse.y = e.touches[0].clientY;
-            
-            // Prevent default to avoid scrolling the page
-            e.preventDefault();
-        });
+    const width = canvas.width;
+    const height = canvas.height;
 
-        window.addEventListener("touchend", () => {
-            isScrolling = false;
-        });
+    stars.forEach(star => {
+        star.x += (dx + ds) * star.speed;
+        star.y += (dy + ds) * star.speed;
 
-        // Handle window resize
-        window.addEventListener("resize", resizeCanvas);
+        // Modulo wrap-around handling negative values
+        star.x = (star.x % width + width) % width;
+        star.y = (star.y % height + height) % height;
+    });
 
-        // Initialize and start animation
-        resizeCanvas();
-        animate();
+    scrollDelta = 0;
+}
+
+function animate() {
+    updateStars();
+    drawStars();
+    requestAnimationFrame(animate);
+}
+
+// Handle mouse movement
+window.addEventListener("mousemove", e => {
+    mouse.x = e.clientX;
+    mouse.y = e.clientY;
+});
+
+// Handle mouse wheel with magnitude
+window.addEventListener("wheel", e => {
+    scrollDelta = e.deltaY * 0.01; // Scale delta for smoother control
+});
+
+// Touch events for mobile devices
+window.addEventListener("touchstart", e => {
+    touchStartY = e.touches[0].clientY;
+    
+    // Update mouse position for star movement
+    mouse.x = e.touches[0].clientX;
+    mouse.y = e.touches[0].clientY;
+});
+
+window.addEventListener("touchmove", e => {
+    const touchY = e.touches[0].clientY;
+    const deltaY = touchY - touchStartY;
+    
+    // Set scroll delta with magnitude (inverted for natural feel)
+    scrollDelta = -deltaY * 0.02; // Adjust factor for sensitivity
+    touchStartY = touchY;
+    
+    // Update mouse position for star movement
+    mouse.x = e.touches[0].clientX;
+    mouse.y = e.touches[0].clientY;
+    
+    // Prevent default to avoid page scrolling
+    e.preventDefault();
+});
+
+// Handle window resize
+window.addEventListener("resize", resizeCanvas);
+
+// Initialize and start animation
+resizeCanvas();
+animate();
