@@ -6,6 +6,7 @@ import { createClouds } from './clouds.js';
 import { createSatellite } from './satellite.js';
 import { createRoom } from './room.js';
 import { cinematicPanels } from './markup.js';
+import { cabinBeats } from './content.js';
 import { matchShape, SHAPE_LABEL } from './recognize.js';
 import { downloadResume } from './download.js';
 import { showStaticPage } from './staticPage.js';
@@ -14,7 +15,7 @@ gsap.registerPlugin(ScrollTrigger);
 
 const ANCHOR = new THREE.Vector3(0, 0, -100);
 const SHAPES = ['circle', 'triangle', 'rectangle'];
-const BEATS = ['about', 'skills', 'projects', 'education', 'contact'];
+const BEATS = cabinBeats.map((beat) => beat.id);
 const ICONS = {
   circle: '<svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="14"/></svg>',
   triangle: '<svg viewBox="0 0 48 48" aria-hidden="true"><polygon points="24,8 40,38 8,38"/></svg>',
@@ -55,6 +56,9 @@ export function bootExperience(score) {
   const panels = document.getElementById('panels');
   const skipBtn = document.getElementById('skip');
   panels.innerHTML = cinematicPanels();
+  document.getElementById('beats').innerHTML = cabinBeats
+    .map((beat) => `<button type="button" data-beat="${beat.id}">${beat.nav}</button>`)
+    .join('');
 
   let renderer;
   try {
@@ -78,7 +82,7 @@ export function bootExperience(score) {
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.toneMapping = THREE.NoToneMapping;
   renderer.autoClear = false;
-  const pixelRatio = Math.min(window.devicePixelRatio || 1, mobile ? 1.25 : 1.6);
+  const pixelRatio = Math.min(window.devicePixelRatio || 1, mobile ? 1 : 1.25);
   renderer.setPixelRatio(pixelRatio);
 
   const scene = new THREE.Scene();
@@ -94,6 +98,7 @@ export function bootExperience(score) {
   const clouds = createClouds();
 
   const pose = { x: 0, y: 0.45, z: 26, lx: 0, ly: 0.2, lz: -30 };
+  const view = { x: pose.x, y: pose.y, z: pose.z, lx: pose.lx, ly: pose.ly, lz: pose.lz };
   const pointer = { x: 0, y: 0 };
   const smooth = { x: 0, y: 0 };
   const raycaster = new THREE.Raycaster();
@@ -154,20 +159,35 @@ export function bootExperience(score) {
     camera.lookAt(0, 0.15, -40);
   }
 
+  function snapView() {
+    view.x = pose.x;
+    view.y = pose.y;
+    view.z = pose.z;
+    view.lx = pose.lx;
+    view.ly = pose.ly;
+    view.lz = pose.lz;
+  }
+
   function applyRoomCamera(dt) {
     const k = 1 - Math.exp(-3.6 * dt);
     smooth.x += (pointer.x - smooth.x) * k;
     smooth.y += (pointer.y - smooth.y) * k;
+    view.x = pose.x;
+    view.y = pose.y;
+    view.z = pose.z;
+    view.lx = pose.lx;
+    view.ly = pose.ly;
+    view.lz = pose.lz;
     camera.position.set(
-      pose.x + smooth.x * 0.14,
-      pose.y + smooth.y * 0.07,
-      pose.z,
+      view.x + smooth.x * 0.14,
+      view.y + smooth.y * 0.07,
+      view.z,
     );
     camera.up.set(0, 1, 0);
     camera.lookAt(
-      pose.lx + smooth.x * 0.46,
-      pose.ly + smooth.y * 0.24,
-      pose.lz,
+      view.lx + smooth.x * 0.46,
+      view.ly + smooth.y * 0.24,
+      view.lz,
     );
   }
 
@@ -200,6 +220,54 @@ export function bootExperience(score) {
     });
   }
 
+  let ride = 0;
+  let beatIndex = 0;
+  let beatProgress = 0;
+  let rideHold = false;
+
+  function beatScrollY(time) {
+    const st = scrollTl.scrollTrigger;
+    return st.start + (time / scrollTl.duration()) * (st.end - st.start);
+  }
+
+  function placeRide() {
+    if (!scrollTl) return;
+    const from = beatScrollY(scrollTl.labels[BEATS[beatIndex]]);
+    const dir = Math.sign(beatProgress);
+    let y = from;
+    if (dir) {
+      const neighbor = Math.min(BEATS.length - 1, Math.max(0, beatIndex + dir));
+      const to = beatScrollY(scrollTl.labels[BEATS[neighbor]]);
+      y = from + (to - from) * Math.abs(beatProgress);
+    }
+    if (Math.abs(window.scrollY - y) < 0.5) return;
+    rideHold = true;
+    window.scrollTo(0, y);
+  }
+
+  function sectionSpan() {
+    if (!scrollTl || BEATS.length < 2) return window.innerHeight;
+    return Math.abs(
+      beatScrollY(scrollTl.labels[BEATS[1]]) - beatScrollY(scrollTl.labels[BEATS[0]]),
+    ) || window.innerHeight;
+  }
+
+  function syncRide() {
+    const max = BEATS.length - 1;
+    ride = Math.min(max, Math.max(0, ride));
+    beatIndex = Math.min(max, Math.floor(ride + 1e-4));
+    beatProgress = beatIndex >= max ? 0 : ride - beatIndex;
+  }
+
+  function pushRide(delta) {
+    if (!scrollTl || !delta) return;
+    const span = sectionSpan();
+    const step = Math.max(-span, Math.min(span, delta * 0.084));
+    ride += step / span;
+    syncRide();
+    placeRide();
+  }
+
   function enableSections() {
     if (sectionsOn) return;
     sectionsOn = true;
@@ -215,19 +283,13 @@ export function bootExperience(score) {
     window.scrollTo(0, 0);
     const poses = world.room.poses;
     scrollTl = gsap.timeline({
-      defaults: { ease: 'power2.inOut' },
+      defaults: { ease: 'none' },
       scrollTrigger: {
         trigger: '#stage',
         start: 'top top',
-        end: '+=500%',
+        end: `+=${(BEATS.length - 1) * 62}%`,
         pin: true,
-        scrub: 0.65,
-        snap: {
-          snapTo: 'labels',
-          duration: { min: 0.18, max: 0.4 },
-          delay: 0.06,
-          ease: 'power1.inOut',
-        },
+        scrub: true,
         onUpdate: (self) => {
           const time = self.progress * scrollTl.duration();
           let current = 'about';
@@ -246,12 +308,13 @@ export function bootExperience(score) {
         return;
       }
       const prev = BEATS[index - 1];
-      scrollTl.to(pose, { ...poses[id], duration: 0.32 }, index - 0.32);
-      scrollTl.to(`#panel-${prev}`, { autoAlpha: 0, duration: 0.12 }, index - 0.24);
-      scrollTl.to(`#panel-${id}`, { autoAlpha: 1, duration: 0.16 }, index - 0.16);
+      scrollTl.to(pose, { ...poses[id], duration: 1, ease: 'none' }, index - 1);
+      scrollTl.to(`#panel-${prev}`, { autoAlpha: 0, duration: 0.22, ease: 'power1.inOut' }, index - 0.28);
+      scrollTl.to(`#panel-${id}`, { autoAlpha: 1, duration: 0.28, ease: 'power1.inOut' }, index - 0.22);
       scrollTl.addLabel(id, index);
     });
-    scrollTl.to('#panel-contact', { autoAlpha: 1, duration: 0.55 }, 4);
+    const last = BEATS.length - 1;
+    scrollTl.to(`#panel-${BEATS[last]}`, { autoAlpha: 1, duration: 0.55 }, last);
     setBeat('about');
     score.setSection('about');
     ScrollTrigger.refresh();
@@ -263,6 +326,8 @@ export function bootExperience(score) {
     world.sat.visible = false;
     world.room.group.visible = true;
     setPose(world.room.poses.about);
+    snapView();
+    stars.group.visible = false;
     smooth.x = 0;
     smooth.y = 0;
     camera.up.set(0, 1, 0);
@@ -374,6 +439,7 @@ export function bootExperience(score) {
       if (boardT >= hold + 1.32) {
         world.sat.visible = false;
         world.room.group.visible = true;
+        stars.group.visible = false;
         setPose(world.room.poses.door);
         boardPhase = 'settle';
         boardT = 0;
@@ -574,24 +640,65 @@ export function bootExperience(score) {
   stage.addEventListener('contextmenu', (event) => {
     if (mode === 'gate' || mode === 'wipe') event.preventDefault();
   });
+  let touchY = null;
+  window.addEventListener('touchstart', (event) => {
+    if (!sectionsOn) return;
+    touchY = event.touches[0].clientY;
+  }, { passive: true });
   window.addEventListener('touchmove', (event) => {
-    if (mode === 'gate' || mode === 'wipe') event.preventDefault();
+    if (mode === 'gate' || mode === 'wipe') {
+      event.preventDefault();
+      return;
+    }
+    if (!sectionsOn || touchY == null) return;
+    const y = event.touches[0].clientY;
+    const delta = touchY - y;
+    touchY = y;
+    event.preventDefault();
+    pushRide(delta);
   }, { passive: false });
+  window.addEventListener('touchend', () => {
+    touchY = null;
+  });
+  window.addEventListener('wheel', (event) => {
+    if (!sectionsOn || mode !== 'room') return;
+    let delta = event.deltaY;
+    if (event.deltaMode === 1) delta *= 16;
+    else if (event.deltaMode === 2) delta *= window.innerHeight;
+    event.preventDefault();
+    pushRide(delta);
+  }, { passive: false });
+  window.addEventListener('scroll', () => {
+    if (!sectionsOn || rideHold) {
+      rideHold = false;
+      return;
+    }
+    placeRide();
+  }, { passive: true });
   skipBtn.addEventListener('click', (event) => {
     event.stopPropagation();
     skipIntro();
   });
   window.addEventListener('keydown', (event) => {
     if (event.key === 'Escape') skipIntro();
+    if (!sectionsOn || mode !== 'room') return;
+    const down = event.key === 'ArrowDown' || event.key === 'PageDown' || event.key === ' ';
+    const up = event.key === 'ArrowUp' || event.key === 'PageUp';
+    if (!down && !up) return;
+    event.preventDefault();
+    const step = (event.key === 'PageDown' || event.key === 'PageUp' || event.key === ' ')
+      ? window.innerHeight * 0.42
+      : window.innerHeight * 0.14;
+    pushRide((down ? 1 : -1) * step);
   });
   document.getElementById('beats').addEventListener('click', (event) => {
     const btn = event.target.closest('[data-beat]');
     if (!btn || !scrollTl) return;
-    const time = scrollTl.labels[btn.dataset.beat];
-    if (time == null) return;
-    const st = scrollTl.scrollTrigger;
-    const progress = time / scrollTl.duration();
-    window.scrollTo({ top: st.start + progress * (st.end - st.start), behavior: 'smooth' });
+    const next = BEATS.indexOf(btn.dataset.beat);
+    if (next < 0) return;
+    ride = next;
+    syncRide();
+    placeRide();
   });
 
   gsap.set('#craft', { xPercent: -50, yPercent: -50 });

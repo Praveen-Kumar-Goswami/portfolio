@@ -1,0 +1,30 @@
+---
+description: What this portfolio is, how far it is built, and what not to change
+alwaysApply: true
+---
+
+# Praveen Kumar Goswami portfolio
+
+Cinematic one-page site for Praveen Kumar Goswami, Software Engineer / AI/ML, Pune. Vite 6, GSAP 3, Three.js. Source is `index.html` plus `src/` (`experience.js` boots the sequence, `room.js` is the cabin, `content.js` is the copy, `markup.js` builds panels). Dev server is `http://127.0.0.1:5173/` (`npm run dev`). Do not start a second one. PowerShell uses `;`.
+
+## Sequence already built
+
+Loader, random shape-draw cloud gate, starfield flight, satellite boarding, then the cabin. Skip or Escape jumps to the About pose. Reduced motion skips the 3D intro. Sound stays muted until the visitor turns it on. Clicking the figure downloads `public/resume/Praveen_Kumar_Goswami_AI_ML.pdf`.
+
+Cabin sections, in order: About, Skills, Study, Career, Vision, Health, Hackathon, Education, Contact. Copy comes from the resume, plus a Cloud skill group the user added: AWS, Azure, Cloud Services. British spellings stay (analyse, personalised). City is Pune. Do not invent phone, email, LinkedIn, GitHub, or project URLs. Do not add SmartScan or SIH. Do not remove the Cloud group.
+
+## Keep
+
+The user asked to keep the site as it is. Do not redesign the scroll, the cabin look, or the skills list unless they ask for a specific change.
+
+## Scroll
+
+The camera tracks the wheel or touch across every section, at 0.084 of the raw wheel distance so the move stays slow. A continued scroll keeps going into the next section. Wheel input moves the cabin even when the pointer is over a text panel. Do not lock the ride at a section boundary, and do not let a panel steal the wheel. Nav clicks land on that section.
+
+## Cabin
+
+Procedural low-poly room at anchor `(0, 0, -100)`. Octagonal brass window, Earth limb with stars above it, wood desk, brass lamp, chair, gold floor ring, four framed pictures. The laptop screen faces the figure. The figure is still procedural (navy jacket, white shirt, seated typing), layer 1 only, yaw `PI/2` toward the desk. Do not replace the figure unless a `.glb` is provided. Keep the click raycast on layer 1.
+
+## Publish
+
+Live site: https://praveen-kumar-goswami.github.io/portfolio/ from `main` of `Praveen-Kumar-Goswami/portfolio`. Vite `base` is `/portfolio/` only when `GITHUB_ACTIONS` is set. Author and committer must be Praveen Kumar Goswami `<praveenkumarg8e8@gmail.com>`. No Cursor co-author trailer. Do not commit or push unless asked. Room polish and the per-section scroll ride are local and are not in the published commit.

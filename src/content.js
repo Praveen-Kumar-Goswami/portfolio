@@ -2,6 +2,18 @@
 
 export const RESUME_FILE = 'Praveen_Kumar_Goswami_AI_ML.pdf';
 
+export const cabinBeats = [
+  { id: 'about', nav: 'About' },
+  { id: 'skills', nav: 'Skills' },
+  { id: 'study', nav: 'Study' },
+  { id: 'career', nav: 'Career' },
+  { id: 'vision', nav: 'Vision' },
+  { id: 'health', nav: 'Health' },
+  { id: 'hackathon', nav: 'Hackathon' },
+  { id: 'education', nav: 'Education' },
+  { id: 'contact', nav: 'Contact' },
+];
+
 export function resumeHref() {
   const base = import.meta.env.BASE_URL || '/';
   return `${base}resume/${RESUME_FILE}`;
@@ -25,6 +37,7 @@ export const person = {
     { label: 'Web', items: ['Flask', 'HTML', 'CSS', 'JavaScript'] },
     { label: 'Mobile', items: ['Android / Kotlin', 'Mobile Application Development'] },
     { label: 'Databases', items: ['MySQL', 'MongoDB', 'Firebase'] },
+    { label: 'Cloud', items: ['AWS', 'Azure', 'Cloud Services'] },
     { label: 'Other', items: ['Git/GitHub', 'API Integration', 'Problem Solving'] },
   ],
   strengths: [
@@ -35,12 +48,14 @@ export const person = {
     'Full-Stack Application Development',
     'Computer Vision',
     'API & Database Integration',
+    'AWS, Azure & Cloud Services',
     'Healthcare Technology',
     'Rapid Prototyping',
     'Research & Innovation',
   ],
   projects: [
     {
+      id: 'study',
       title: 'AI-Powered Study Companion',
       bullets: [
         'Developed an AI-powered study assistant integrating conversational AI with a web-based interface.',
@@ -50,6 +65,7 @@ export const person = {
       ],
     },
     {
+      id: 'career',
       title: 'Career Path Predictor with Industry Alignment',
       bullets: [
         'Developed an AI-powered career guidance platform designed to analyse academic performance, personal interests, and industry requirements.',
@@ -59,6 +75,7 @@ export const person = {
       ],
     },
     {
+      id: 'vision',
       title: 'Device Control Through Eye Movement',
       bullets: [
         'Developed a computer-vision-based assistive technology concept for controlling devices through eye movement.',
@@ -67,6 +84,7 @@ export const person = {
       ],
     },
     {
+      id: 'health',
       title: 'Healthcare Mobile App',
       bullets: [
         'Developed a healthcare-focused mobile application concept using modern application-development technologies.',
@@ -76,6 +94,7 @@ export const person = {
     },
   ],
   hackathon: {
+    id: 'hackathon',
     title: 'TECH4LIFE 2026',
     meta: 'Medical Devices Hackathon · Team CODE MARROW',
     bullets: [

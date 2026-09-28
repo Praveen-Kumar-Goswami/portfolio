@@ -250,9 +250,9 @@ html.room #stage { touch-action: pan-y; }
 .panel {
   position: absolute;
   z-index: 6;
-  top: 11vh;
+  top: 8vh;
   width: min(340px, 34vw);
-  max-height: min(76dvh, 680px);
+  max-height: min(84dvh, 760px);
   overflow: auto;
   padding: 22px 22px 20px;
   background: var(--glass);
@@ -300,10 +300,13 @@ html.room #stage { touch-action: pan-y; }
 }
 
 .panel h2 { font-size: clamp(28px, 4vw, 42px); }
+.panel.work h2 { font-size: clamp(22px, 3vw, 32px); }
+.panel.work ul { margin: 0; padding-left: 1.1rem; color: var(--muted); }
+.panel.work li { margin: 0 0 6px; font-size: 14px; line-height: 1.45; }
 .panel p { margin: 0 0 10px; color: var(--muted); line-height: 1.5; font-size: 15px; }
 .panel .role, .static-head .role { color: var(--ink); font-size: 16px; }
 
-.skill { margin-bottom: 10px; }
+.skill { margin-bottom: 6px; }
 .skill h3, .project h3 {
   margin: 0 0 2px;
   font-size: 14px;

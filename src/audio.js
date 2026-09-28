@@ -5,6 +5,11 @@ const CHORDS = {
   about: { a: 65.41, b: 98, cut: 720 },
   skills: { a: 73.42, b: 110, cut: 880 },
   projects: { a: 87.31, b: 130.81, cut: 1100 },
+  study: { a: 82.41, b: 123.47, cut: 980 },
+  career: { a: 87.31, b: 130.81, cut: 1100 },
+  vision: { a: 92.5, b: 138.59, cut: 1200 },
+  health: { a: 98, b: 146.83, cut: 1040 },
+  hackathon: { a: 73.42, b: 110, cut: 900 },
   education: { a: 61.74, b: 92.5, cut: 640 },
   contact: { a: 55, b: 82.41, cut: 520 },
 };

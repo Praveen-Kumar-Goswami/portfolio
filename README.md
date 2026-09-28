@@ -30,7 +30,7 @@ npm run test:shapes
 2. **Draw gate** — each load picks one of circle, triangle, or rectangle. Dragging erases the cloud mask (`destination-out` on a canvas texture) and reveals the starfield. A closed stroke is matched with a lightweight template distance, not a model.
 3. **Wipe** — a matched shape rushes outward and clears the sky. Star streaks ramp up with it.
 4. **Transit** — the camera banks through the field, then brakes on the satellite and pushes through the hull.
-5. **Cabin** — scroll is pinned with GSAP ScrollTrigger. The camera dollies between About, Skills, Projects, Education, and Contact. Mouse position eases the view on its own animation frame, separate from that timeline.
+5. **Cabin** — scroll is pinned with GSAP ScrollTrigger. The camera dollies through About, Skills, each project, the hackathon, Education, and Contact. Mouse position eases the view on its own animation frame, separate from that timeline.
 6. **Resume** — click the figure at the desk (a raycast on that mesh) or use the download link. The file is the real PDF in `public/resume/`.
 
 **Skip intro** is on screen from the first paint and drops you in the cabin. Escape does the same.
