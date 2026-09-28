@@ -1,78 +1,104 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Praveen | Portfolio</title>
-  <link rel="stylesheet" href="assest/style.css">
-</head>
-<body>
-<canvas id="starfield"></canvas>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Praveen Kumar Goswami</title>
+    <meta
+      name="description"
+      content="Praveen Kumar Goswami is a software engineer and AI/ML engineer in Pune. Portfolio of study tools, career guidance, assistive vision, and healthcare apps."
+    />
+    <meta name="theme-color" content="#07090e" />
+    <link rel="icon" href="%BASE_URL%favicon.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Outfit:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <script>
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        document.documentElement.classList.add('reduced');
+      } else {
+        document.documentElement.classList.add('intro');
+      }
+    </script>
+  </head>
+  <body>
+    <noscript>
+      <style>
+        #experience, #skip, #sound, #endcap { display: none !important; }
+      </style>
+      <main class="sheet-page">
+        <p class="kicker">Portfolio</p>
+        <h1>Praveen Kumar Goswami</h1>
+        <p>Software Engineer · AI/ML Engineer · Pune, India</p>
+        <p>
+          Software Engineer and AI/ML enthusiast with a strong foundation in Python, machine learning,
+          software development, data structures, and full-stack application development.
+        </p>
+        <p>
+          Projects: AI-Powered Study Companion, Career Path Predictor with Industry Alignment,
+          Device Control Through Eye Movement, Healthcare Mobile App, and TECH4LIFE 2026 with team CODE MARROW.
+        </p>
+        <p>BCA, 2023–2026. MCA, 2026–2028, pursuing.</p>
+        <p><a href="%BASE_URL%resume/Praveen_Kumar_Goswami_AI_ML.pdf" download>Download resume</a></p>
+      </main>
+    </noscript>
 
-<header>
-  <img src="assest/Dbz.jpg" height="200" width="200" style="border-radius: 50%;">
-  <h1>Prabhat Kumar</h1>
-  <p>AI/ML Enthusiast | Web Developer | Innovator</p>
-</header>
+    <div id="static" hidden></div>
 
-<section id="about">
-  <h2>About Me</h2>
-  <p>
-    Hi, I'm Prabhat 👋. I’m an aspiring AI/ML engineer and web developer.
-    Currently pursuing my BCA, I have a strong passion for building intelligent systems and innovative applications.
-    I’ve received awards for <b>Best Innovation</b> and <b>Best Presentation</b>.
-  </p>
-</section>
+    <div id="experience">
+      <div id="stage">
+        <canvas id="webgl"></canvas>
+        <div id="vignette" aria-hidden="true"></div>
+        <div id="airlock" aria-hidden="true"></div>
 
-<section id="skills">
-  <h2>Skills</h2>
-  <div class="skills-list">
-    <span>Python</span>
-    <span>Flask</span>
-    <span>JavaScript</span>
-    <span>HTML & CSS</span>
-    <span>React</span>
-    <span>Firebase</span>
-    <span>Machine Learning</span>
-    <span>Data Science</span>
-    <span>SQL</span>
-  </div>
-</section>
+        <div id="loader-hud">
+          <p class="telemetry">Link · sky seal</p>
+          <div id="orbit" aria-hidden="true">
+            <svg viewBox="0 0 140 140">
+              <circle id="ring-circle" cx="70" cy="70" r="54"></circle>
+            </svg>
+            <div id="craft">
+              <svg viewBox="0 0 32 16" width="32" height="16">
+                <rect x="12" y="5" width="8" height="6" fill="currentColor"></rect>
+                <rect x="1" y="6.2" width="10" height="3.6" fill="currentColor" opacity="0.8"></rect>
+                <rect x="21" y="6.2" width="10" height="3.6" fill="currentColor" opacity="0.8"></rect>
+              </svg>
+            </div>
+          </div>
+          <p id="loader-line">Clouds draw across the glass.</p>
+        </div>
 
-<section id="projects">
-  <h2>Projects</h2>
-  <ul>
-    <li><b>AI-Powered Study Companion</b> – A web app with GPT, speech recognition, and motion detection.</li>
-    <li><b>Career Path Predictor</b> – AI platform suggesting careers based on academics, interests, and job trends.</li>
-    <li><b>Singers’ Lyrics Website</b> – A platform where users upload songs and search lyrics.</li>
-  </ul>
-</section>
+        <div id="gate-hud" hidden>
+          <div id="shape-icon"></div>
+          <p id="shape-label">Draw a circle</p>
+          <p id="shape-help">One continuous stroke. Close the shape.</p>
+          <p id="shape-status" aria-live="polite"></p>
+        </div>
 
-<section id="contact">
-  <h2>Contact</h2>
-  <p>
-    <a href="mailto:praveenkumarg8e8@gmail.com" target="_blank">
-      <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/gmail.svg" alt="Google Mail" width="32" height="32">
-    </a>
-  </p>
-  <p>
-    <a href="https://www.linkedin.com/in/praveen-kumar-goswami-" target="_blank">
-      <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/linkedin/linkedin-original.svg" alt="LinkedIn" width="32" height="32">
-    </a>
-  </p>
-  <p>
-    <a href="https://github.com/Praveen-Kumar-Goswami" target="_blank">
-      <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/github/github-original.svg" alt="GitHub" width="32" height="32">
-    </a>
-  </p>
-</section>
+        <p id="transit" hidden>Transit</p>
+        <div id="panels"></div>
+        <nav id="beats" hidden aria-label="Sections">
+          <button type="button" data-beat="about">About</button>
+          <button type="button" data-beat="skills">Skills</button>
+          <button type="button" data-beat="projects">Projects</button>
+          <button type="button" data-beat="education">Education</button>
+          <button type="button" data-beat="contact">Contact</button>
+        </nav>
+        <p id="resume-hint" hidden>Click the figure at the desk to download the resume.</p>
+      </div>
+    </div>
 
+    <footer id="endcap">
+      <p class="kicker">Cabin</p>
+      <p>Praveen Kumar Goswami · Pune</p>
+      <a class="btn" href="%BASE_URL%resume/Praveen_Kumar_Goswami_AI_ML.pdf" download="Praveen_Kumar_Goswami_AI_ML.pdf">Download resume</a>
+    </footer>
 
-<footer>
-  <p>© 2025 Prabhat Kumar | This is all for now, as I'm focusing on developing other skills.</p>
-
-</footer>
-
-<script src="assest/script.js" defer></script>
-</body>
+    <button id="skip" type="button">Skip intro</button>
+    <button id="sound" type="button" aria-pressed="false">Sound off</button>
+    <script type="module" src="/src/main.js"></script>
+  </body>
 </html>
