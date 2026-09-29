@@ -6,7 +6,7 @@ import { createClouds } from './clouds.js';
 import { createSatellite } from './satellite.js';
 import { createRoom } from './room.js';
 import { cinematicPanels } from './markup.js';
-import { cabinBeats } from './content.js';
+import { cabinBeats, person } from './content.js';
 import { matchShape, SHAPE_LABEL } from './recognize.js';
 import { downloadResume } from './download.js';
 import { showStaticPage } from './staticPage.js';
@@ -48,6 +48,8 @@ export function bootExperience(score) {
   const loaderHud = document.getElementById('loader-hud');
   const gateHud = document.getElementById('gate-hud');
   const transit = document.getElementById('transit');
+  const arrival = document.getElementById('arrival');
+  const arrivalLine = document.getElementById('arrival-line');
   const airlock = document.getElementById('airlock');
   const shapeLabel = document.getElementById('shape-label');
   const shapeIcon = document.getElementById('shape-icon');
@@ -56,6 +58,7 @@ export function bootExperience(score) {
   const panels = document.getElementById('panels');
   const skipBtn = document.getElementById('skip');
   panels.innerHTML = cinematicPanels();
+  gsap.set('.panel-body', { autoAlpha: 0, y: 6 });
   document.getElementById('beats').innerHTML = cabinBeats
     .map((beat) => `<button type="button" data-beat="${beat.id}">${beat.nav}</button>`)
     .join('');
@@ -117,7 +120,7 @@ export function bootExperience(score) {
   let flightT = 0;
   let boardT = 0;
   let boardPhase = 'push';
-  let boardPanel = false;
+  let arrivalStep = 0;
   const boardFrom = new THREE.Vector3();
   const boardTo = new THREE.Vector3();
   let manualBoost = 0;
@@ -220,6 +223,35 @@ export function bootExperience(score) {
     });
   }
 
+  let lastBeat = '';
+  let keyGate = false;
+
+  function noteBeat(id, instant) {
+    setBeat(id);
+    score.setSection(id);
+    world?.room?.setScreen(id);
+    const body = document.querySelector(`#panel-${id} .panel-body`);
+    if (id !== lastBeat) {
+      if (lastBeat) gsap.set(`#panel-${lastBeat} .panel-body`, { autoAlpha: 0, y: 6 });
+      lastBeat = id;
+      if (body && !instant) {
+        gsap.fromTo(body, { autoAlpha: 0, y: 6 }, {
+          autoAlpha: 1, y: 0, duration: 0.5, delay: 0.32, ease: 'power2.out', overwrite: true,
+        });
+      }
+    }
+    if (instant && body) {
+      gsap.killTweensOf(body);
+      gsap.set(body, { autoAlpha: 1, y: 0 });
+    }
+  }
+
+  function clearArrival() {
+    gsap.killTweensOf([arrival, arrivalLine]);
+    gsap.set(arrival, { autoAlpha: 0 });
+    arrival.setAttribute('aria-hidden', 'true');
+  }
+
   let ride = 0;
   let beatIndex = 0;
   let beatProgress = 0;
@@ -268,7 +300,7 @@ export function bootExperience(score) {
     placeRide();
   }
 
-  function enableSections() {
+  function enableSections(instant) {
     if (sectionsOn) return;
     sectionsOn = true;
     document.documentElement.classList.remove('intro');
@@ -296,8 +328,7 @@ export function bootExperience(score) {
           for (const id of BEATS) {
             if ((scrollTl.labels[id] ?? 0) <= time + 0.001) current = id;
           }
-          setBeat(current);
-          score.setSection(current);
+          noteBeat(current, false);
         },
       },
     });
@@ -315,9 +346,8 @@ export function bootExperience(score) {
     });
     const last = BEATS.length - 1;
     scrollTl.to(`#panel-${BEATS[last]}`, { autoAlpha: 1, duration: 0.55 }, last);
-    setBeat('about');
-    score.setSection('about');
     ScrollTrigger.refresh();
+    noteBeat('about', !!instant);
   }
 
   function enterNow() {
@@ -334,8 +364,9 @@ export function bootExperience(score) {
     camera.fov = roomFov;
     camera.updateProjectionMatrix();
     airlock.style.opacity = '0';
+    clearArrival();
     mode = 'room';
-    enableSections();
+    enableSections(true);
   }
 
   function skipIntro() {
@@ -386,7 +417,7 @@ export function bootExperience(score) {
     mode = 'board';
     boardT = 0;
     boardPhase = 'push';
-    boardPanel = false;
+    arrivalStep = 0;
     boardFrom.copy(camera.position);
     camera.up.set(0, 1, 0);
     camera.lookAt(satLook);
@@ -448,10 +479,6 @@ export function bootExperience(score) {
       return;
     }
 
-    if (!boardPanel && boardT > 0.45) {
-      boardPanel = true;
-      gsap.to('#panel-about', { autoAlpha: 1, duration: 0.7, ease: 'power2.out' });
-    }
     const u = Math.min(1, boardT / 2.15);
     const e = 1 - (1 - u) ** 3;
     const from = world.room.poses.door;
@@ -464,11 +491,39 @@ export function bootExperience(score) {
     pose.lz = from.lz + (to.lz - from.lz) * e;
     applyRoomCamera(dt);
     airlock.style.opacity = String(1 - Math.min(1, boardT / 1.05));
-    if (u >= 1) {
+    if (boardT > 1.2 && arrivalStep === 0) {
+      arrivalStep = 1;
+      transit.hidden = true;
+      arrivalLine.textContent = person.name;
+      arrival.setAttribute('aria-hidden', 'false');
+      gsap.fromTo(arrival, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.55, overwrite: true });
+    }
+    if (boardT > 2.6 && arrivalStep === 1) {
+      arrivalStep = 2;
+      gsap.to(arrivalLine, {
+        autoAlpha: 0,
+        duration: 0.28,
+        onComplete: () => {
+          arrivalLine.textContent = person.city;
+          gsap.to(arrivalLine, { autoAlpha: 1, duration: 0.4 });
+        },
+      });
+    }
+    if (boardT > 3.85 && arrivalStep === 2) {
+      arrivalStep = 3;
+      gsap.to(arrival, {
+        autoAlpha: 0,
+        duration: 0.4,
+        onComplete: () => arrival.setAttribute('aria-hidden', 'true'),
+      });
+      gsap.to('#panel-about', { autoAlpha: 1, duration: 0.7, ease: 'power2.out' });
+    }
+    if (boardT > 4.2 && arrivalStep === 3) {
+      arrivalStep = 4;
       mode = 'room';
       setPose(to);
       airlock.style.opacity = '0';
-      enableSections();
+      enableSections(false);
     }
   }
 
@@ -611,7 +666,17 @@ export function bootExperience(score) {
       camera.updateProjectionMatrix();
     }
 
-    if (world?.room?.group.visible) world.room.update(clock);
+    if (world?.room?.group.visible) {
+      world.room.update(clock);
+      if (mode === 'room') {
+        const strike = Math.sin(clock * 6.4);
+        if (strike > 0.96 && !keyGate) {
+          score.key();
+          keyGate = true;
+        }
+        if (strike < 0.2) keyGate = false;
+      }
+    }
     if (world?.sat?.visible) {
       const beacon = world.sat.userData.beacon;
       if (beacon) beacon.material.color.setRGB(1, 0.28 + Math.sin(clock * 4.6) * 0.22, 0.12);

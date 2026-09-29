@@ -22,6 +22,7 @@ export function createScore() {
   let filter = null;
   let audible = false;
   let section = 'about';
+  let chordGain = null;
 
   function ensure() {
     if (ctx) return;
@@ -53,10 +54,13 @@ export function createScore() {
     const gB = ctx.createGain();
     gA.gain.value = 0.22;
     gB.gain.value = 0.07;
+    chordGain = ctx.createGain();
+    chordGain.gain.value = 0.45;
     oscA.connect(gA);
     oscB.connect(gB);
-    gA.connect(filter);
-    gB.connect(filter);
+    gA.connect(chordGain);
+    gB.connect(chordGain);
+    chordGain.connect(filter);
     oscA.frequency.value = CHORDS.about.a;
     oscB.frequency.value = CHORDS.about.b;
     oscA.start();
@@ -70,7 +74,7 @@ export function createScore() {
     noise.buffer = buffer;
     noise.loop = true;
     const noiseGain = ctx.createGain();
-    noiseGain.gain.value = 0.035;
+    noiseGain.gain.value = 0.02;
     const noiseFilter = ctx.createBiquadFilter();
     noiseFilter.type = 'bandpass';
     noiseFilter.frequency.value = 240;
@@ -93,14 +97,26 @@ export function createScore() {
     filter.frequency.linearRampToValueAtTime(chord.cut, t + 1.3);
   }
 
+  function swell() {
+    if (!chordGain) return;
+    const t = ctx.currentTime;
+    chordGain.gain.cancelScheduledValues(t);
+    chordGain.gain.setValueAtTime(0.16, t);
+    chordGain.gain.linearRampToValueAtTime(1, t + 0.28);
+    chordGain.gain.linearRampToValueAtTime(0.42, t + 1.35);
+  }
+
   return {
     get audible() {
       return audible;
     },
     setSection(name) {
-      if (!CHORDS[name]) return;
+      if (!CHORDS[name] || name === section) return;
       section = name;
-      if (audible) retune(name);
+      if (audible) {
+        retune(name);
+        swell();
+      }
     },
     async toggle() {
       ensure();
@@ -109,8 +125,30 @@ export function createScore() {
       const t = ctx.currentTime;
       master.gain.cancelScheduledValues(t);
       master.gain.linearRampToValueAtTime(audible ? 0.2 : 0, t + 0.35);
-      if (audible) retune(section);
+      if (audible) {
+        retune(section);
+        swell();
+      }
       return audible;
+    },
+    key() {
+      if (!ctx || !audible) return;
+      const t = ctx.currentTime;
+      const osc = ctx.createOscillator();
+      osc.type = 'square';
+      osc.frequency.value = 1600 + Math.random() * 500;
+      const gain = ctx.createGain();
+      const high = ctx.createBiquadFilter();
+      high.type = 'highpass';
+      high.frequency.value = 900;
+      gain.gain.setValueAtTime(0.0001, t);
+      gain.gain.exponentialRampToValueAtTime(0.018, t + 0.004);
+      gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.035);
+      osc.connect(high);
+      high.connect(gain);
+      gain.connect(master);
+      osc.start(t);
+      osc.stop(t + 0.04);
     },
     whoosh() {
       if (!ctx || !audible) return;

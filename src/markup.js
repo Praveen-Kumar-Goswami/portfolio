@@ -34,12 +34,14 @@ function workPanel(work, side) {
     <article class="panel work" id="panel-${esc(work.id)}" data-side="${side}">
       <p class="kicker">${esc(kickerFor(work.id))}</p>
       <h2>${esc(work.title)}</h2>
-      ${meta}
-      <ul>
-        ${work.bullets.map((item) => `<li>${esc(item)}</li>`).join('')}
-      </ul>
-      ${awards}
-      ${link}
+      <div class="panel-body">
+        ${meta}
+        <ul>
+          ${work.bullets.map((item) => `<li>${esc(item)}</li>`).join('')}
+        </ul>
+        ${awards}
+        ${link}
+      </div>
     </article>
   `;
 }
@@ -83,16 +85,20 @@ export function cinematicPanels() {
     <article class="panel" id="panel-about" data-side="right">
       <p class="kicker">${esc(kickerFor('about'))}</p>
       <h2>${esc(person.name)}</h2>
-      <p class="role">${esc(person.role)} · ${esc(person.focus)}</p>
-      <p class="where">${esc(person.location)}</p>
-      ${person.summary.map((line) => `<p>${esc(line)}</p>`).join('')}
-      <p class="note">Click the figure at the desk to download the resume.</p>
+      <div class="panel-body">
+        <p class="role">${esc(person.role)} · ${esc(person.focus)}</p>
+        <p class="where">${esc(person.location)}</p>
+        ${person.summary.map((line) => `<p>${esc(line)}</p>`).join('')}
+        <p class="note">Click the figure at the desk to download the resume.</p>
+      </div>
     </article>
     <article class="panel" id="panel-skills" data-side="right">
       <p class="kicker">${esc(kickerFor('skills'))}</p>
       <h2>Technical skills</h2>
-      ${skillBlock()}
-      <div class="chips">${person.strengths.map((item) => `<span>${esc(item)}</span>`).join('')}</div>
+      <div class="panel-body">
+        ${skillBlock()}
+        <div class="chips">${person.strengths.map((item) => `<span>${esc(item)}</span>`).join('')}</div>
+      </div>
     </article>
     ${workPanel(person.projects[0], 'right')}
     ${workPanel(person.projects[1], 'left')}
@@ -102,13 +108,17 @@ export function cinematicPanels() {
     <article class="panel" id="panel-education" data-side="bottom">
       <p class="kicker">${esc(kickerFor('education'))}</p>
       <h2>Degrees</h2>
-      <ul class="degrees">${educationBlock()}</ul>
+      <div class="panel-body">
+        <ul class="degrees">${educationBlock()}</ul>
+      </div>
     </article>
     <article class="panel" id="panel-contact" data-side="right">
       <p class="kicker">${esc(kickerFor('contact'))}</p>
       <h2>${esc(person.city)}</h2>
-      <p class="where">${esc(person.location)}</p>
-      ${download()}
+      <div class="panel-body">
+        <p class="where">${esc(person.location)}</p>
+        ${download()}
+      </div>
     </article>
   `;
 }

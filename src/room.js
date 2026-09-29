@@ -203,19 +203,50 @@ function paintArt(kind) {
   return canvasTex(canvas);
 }
 
-function paintScreen() {
-  const canvas = document.createElement('canvas');
-  canvas.width = 256;
-  canvas.height = 160;
+const SCREEN_COPY = {
+  study: ['Study companion', 'Listen  ·  explain'],
+  career: ['Career path', 'Interest  →  industry'],
+  vision: ['Eye movement', 'Gaze  ·  select'],
+  health: ['Health link', 'Pulse  ·  access'],
+};
+
+function drawScreen(canvas, kind) {
   const g = canvas.getContext('2d');
   const sky = g.createLinearGradient(0, 0, 0, 160);
   sky.addColorStop(0, '#e7f7ff');
   sky.addColorStop(1, '#7ec4f0');
   g.fillStyle = sky;
   g.fillRect(0, 0, 256, 160);
-  g.fillStyle = 'rgba(16, 42, 68, 0.45)';
-  for (let i = 0; i < 8; i++) g.fillRect(18, 16 + i * 17, 60 + ((i * 41) % 120), 3);
-  return canvasTex(canvas);
+  const copy = SCREEN_COPY[kind];
+  if (!copy) {
+    g.fillStyle = 'rgba(16, 42, 68, 0.45)';
+    for (let i = 0; i < 8; i++) g.fillRect(18, 16 + i * 17, 60 + ((i * 41) % 120), 3);
+    return;
+  }
+  g.fillStyle = '#12324f';
+  g.font = '600 22px sans-serif';
+  g.fillText(copy[0], 16, 56);
+  g.font = '16px sans-serif';
+  g.fillStyle = 'rgba(16, 42, 68, 0.75)';
+  g.fillText(copy[1], 16, 88);
+  if (kind === 'vision') {
+    g.fillStyle = '#1a6ea8';
+    [[48, 122], [104, 112], [162, 126], [214, 108]].forEach(([x, y], index) => {
+      g.beginPath();
+      g.arc(x, y, index === 2 ? 5 : 3, 0, Math.PI * 2);
+      g.fill();
+    });
+  }
+  if (kind === 'health') {
+    g.strokeStyle = '#1a6ea8';
+    g.lineWidth = 2;
+    g.beginPath();
+    g.moveTo(16, 122);
+    [0, 0, 10, -18, 16, 12, 6, 0, 0, 8, -12, 12, 4, 0].forEach((y, index) => {
+      g.lineTo(28 + index * 14, 122 + y);
+    });
+    g.stroke();
+  }
 }
 
 function bone(from, to, thickness, material) {
@@ -404,7 +435,12 @@ export function createRoom(anchor, mobile) {
     new THREE.MeshStandardMaterial({ color: 0x12161c, roughness: 0.5 }),
   );
   keys.position.y = 0.014;
-  const screenMap = paintScreen();
+  const screenCanvas = document.createElement('canvas');
+  screenCanvas.width = 256;
+  screenCanvas.height = 160;
+  drawScreen(screenCanvas, 'about');
+  const screenMap = canvasTex(screenCanvas);
+  let screenKind = 'about';
   const screenMat = new THREE.MeshStandardMaterial({
     color: 0xffffff,
     map: screenMap,
@@ -670,6 +706,13 @@ export function createRoom(anchor, mobile) {
     },
     pulseScreen() {
       pulse = 0.8;
+    },
+    setScreen(kind) {
+      const next = SCREEN_COPY[kind] ? kind : 'about';
+      if (next === screenKind) return;
+      screenKind = next;
+      drawScreen(screenCanvas, next);
+      screenMap.needsUpdate = true;
     },
   };
 }

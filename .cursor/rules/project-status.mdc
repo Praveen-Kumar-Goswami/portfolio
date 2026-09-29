@@ -23,7 +23,7 @@ The camera tracks the wheel or touch across every section, at 0.084 of the raw w
 
 ## Cabin
 
-Procedural low-poly room at anchor `(0, 0, -100)`. Octagonal brass window, Earth limb with stars above it, wood desk, brass lamp, chair, gold floor ring, four framed pictures. The laptop screen faces the figure. The figure is still procedural (navy jacket, white shirt, seated typing), layer 1 only, yaw `PI/2` toward the desk. Do not replace the figure unless a `.glb` is provided. Keep the click raycast on layer 1.
+Procedural low-poly room at anchor `(0, 0, -100)`. Octagonal brass window, Earth limb with stars above it, wood desk, brass lamp, chair, gold floor ring, four framed pictures. The laptop screen faces the figure and changes with the chapter: a study note, a career line, an eye-tracking line, a health pulse, and a quiet default for the other sections. The full intro holds his name, then Pune, before About. Skip and Escape skip that title. Panel titles lead, and the rest of the text follows. Sound stays off until it is turned on; then a cabin hum sits under a chord that swells only when a section is entered, plus a soft key tick while the figure types. The figure is still procedural (navy jacket, white shirt, seated typing), layer 1 only, yaw `PI/2` toward the desk. Do not replace the figure unless a `.glb` is provided. Keep the click raycast on layer 1.
 
 ## Publish
 
